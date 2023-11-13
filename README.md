@@ -1,7 +1,24 @@
 # CTF-Cheatsheet
 A rough CTF cheatsheet for beginners.
 
-# Tools
+# Setting Up
+### Network Interface
+You will need to know your ip-address. I will show you some ways of obtaining it via terminal.
+1. ip a
+2. ifconfig
+3. ip addr
+
+### SecList
+A crucial wordlist that I will say you need is this [SecList](https://github.com/danielmiessler/SecLists). The common files used from this download will be the /Discovery/Web-content/ directory.
+
+# Tools & More.
+### Host Discovery
+#### Method 1
+1. fping -aq -r 1 -g **192.x.x.x** | tee *filename*
+
+#### Method 2
+2. sudo netdiscover -i *interface* -r **192.x.x.x**/24.
+
 ### NMap
 This scan is quite aggressive and won't evade an IDS/IPS.
 1. nmap -vv -Pn -R -sV -sC -p- **192.x.x.x**
@@ -51,6 +68,31 @@ This is a great tool to analyse responses, which sometimes helps you see the fla
 This tool is great for windows SID finding and username discovery.
 1. enum4linux -a **192.x.x.x**
 
+### Nikto
+Perfect for website analysis.
+1. nikto -h **192.x.x.x** -p *port*
+
+### WordPress Scan
+My favourite way to obtain usernames from wordpress websites is the following command.
+1. wpscan –url *url* --enumerate p –enumerate t –enumerate u
+
+### MySQL
+The simplest way to connect remotely to the mysql service.
+1. mysql -u *username* -p -h **192.x.x.x**
+
+**Note**: If you have the ability to have root access to mysql, you **WILL** be able to privilege escalate. [\! /bin/sh](https://gtfobins.github.io/gtfobins/mysql/) is the command.
+
+
+### View Internal Listeners
+It is possible to have an internal website that is only accessible from the victim machine. This is where port-forwarding comes in (use chisel), this command helps you find this.
+1. netstat -ltup 
+
+# Alternatives to Cat
+1.	fold *filename*
+2.	nl *filename* (will show numbered lines)
+3.	head *filename* (shows the head portion of file)
+4.	tail *filename* (shows the tail portion of file)
+
 # File Upload Bypass
 If you need to upload a reverse shell, like from [PenTest Monkey](https://github.com/pentestmonkey/php-reverse-shell), then you may experience the dashboard preventing you from uploading.
 This can be easily fixed by doing either of the following.
@@ -64,6 +106,10 @@ This can be easily fixed by doing either of the following.
 # File Transfer
 There are many ways to transfer files between victim and attacker. The one thing I discovered was that it is easier to have FTP, SMB, and python simple server to handle this.
 I strongly recommend searching up how to set up FTP and SMB services, and link it to your kali/parrot desktop for easy transfer.
+
+### Python Simple Server
+``` python3 -m http.server -b 192.x.x.x port ``` or
+``` python -m SimpleHTTPServer -b 192.x.x.x port ```
 
 # Upgrading Shell
 To give you more of a familiar terminal interface, if python is installed, you can run this command. You can replace 'python' with any version of python which is installed on the victim system.
@@ -110,7 +156,17 @@ Step 3: Transfer the corresponding potato exploit.
 The command mentioned below will find any services with the unquoted path vulnerability.
 * `wmic service get name,displayname,pathname,startmode |findstr /i "Auto" |findstr /i /v "C:\Windows\\" |findstr /i /v """`
 
+### WinAutoLogon
+Sometimes credentials are stored within the registry to assist with automating the login process. This means that plain text credentials may be accessible to an attacker.
+
+* `reg query HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon`
+
 # Linux Exploitation
+### Recommended Scripts
+1. LinPEAS.sh (You can use the binary)
+2. linux-exploit-suggestor.sh
+
+### Common Exploits
 The common exploits for linux are the following.
 1. Kernel Exploits
    - Dirty Cow
@@ -134,6 +190,7 @@ The common exploits for linux are the following.
 2. id
 3. ls -la
 4. nc -lvnp *port* (bread and butter for CTF)
+5. sudo -l
 
 # Key Kali Directories
 * **Reverse Shells & Backdoors**: /usr/share/webshells
@@ -146,12 +203,12 @@ I am not the best, I am still learning penetration testing methodologies. Howeve
 2. Get comfortable navigating using the terminal.
 3. Check source code of websites.
 4. Hidden directories can contain passwords or usernames.
-5. Try default passwords for login onto dashboards.
+5. Try default passwords for dashboard login.
 6. Look into SMB, FTP, RDP for any information.
 7. Check history files of Windows and Linux.
 8. Use automated scripts to help find vulnerabilities (while starting off).
 9. Understand cronjobs and what crontab is.
-10. Don't use Msfconsole, unless absolutely necessary.
+10. Don't use msfconsole/meterpreter, unless absolutely necessary.
 
 # Must Know Websites
 [HackTricks](https://book.hacktricks.xyz/)
